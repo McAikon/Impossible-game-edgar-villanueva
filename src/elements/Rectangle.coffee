@@ -1,3 +1,5 @@
+Paredes = require('../data/paredes')
+
 class Rectangle extends PIXI.Graphics
     color: null
     posX: null
@@ -6,7 +8,9 @@ class Rectangle extends PIXI.Graphics
     h: null
     p: null
     Bad: false
-    Value: null
+    alpha: 1
+    paredes : Paredes
+    velocidad : 0
     pause: null
     constructor:(c, x, y, w, h, p, Bad) ->
         super()
@@ -17,28 +21,21 @@ class Rectangle extends PIXI.Graphics
         @w = w
         @h = h
         @p = p
+        @x = x
+        @y = y
         @Bad = Bad
         @draw() 
 
     draw: =>
 
         @beginFill(@color)
-        @drawRect(0 ,0 ,@w,@h)
+        @drawRect(0 ,0 ,@w,@h, @alpha, @paredes)
         @endFill()
+        @alpha = 1
 
-#    animate: =>
-#        return if @pause
-#        @x -= 3
-#        if @x <= 0
-#            @x = window.innerWidth
+    animate: =>
+        @y += @velocidad
 
-#    collision: =>
-#        dx = @x - @green.x
-#        dy = @y - @green.y
-#        distance = Math.sqrt(green.x < n.x + n.width && green.x + green.width > n.x && green.y < n.y + n.height && green.height + green.y > n.y)
-
-#        if distance < @y + @green.x
-#            @green.alpha = 0
 
 
 module.exports = Rectangle
