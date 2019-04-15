@@ -3,6 +3,7 @@ DataParedes = require('./data/paredes')
 fdata = require('./assets/Jugador.json')
 Jugador = require('./assets/Jugador.png')
 dagaImage = require('./assets/daga.png')
+lanzaImage = require('./assets/lanza.png')
 BgImage = require('./assets/stage.png')
 Bgcamino = require('./assets/camino.png')
 Bglava = require('./assets/lava.png')
@@ -14,6 +15,8 @@ Pared = require('./elements/Pared')
 DataInvisibles = require('./data/invisibles')
 Invisible = require('./elements/Invisible')
 Invisible2 = require('./elements/invisible2')
+Invisible3 = require('./elements/invisible3')
+Invisible4 = require('./elements/invisible4')
 
 class App extends PIXI.Application
   animation:true
@@ -21,8 +24,12 @@ class App extends PIXI.Application
   pared:[]
   obstaculo:[]
   obstaculo2:[]
+  obstaculo3:[]
+  obstaculo4:[]
+  obstaculo5:[]
   daga:[]
   picos:[]
+  lanza:[]
   pause: false
   myStage: stage
   constructor:(w,h,o)->
@@ -85,7 +92,7 @@ class App extends PIXI.Application
         
       
   preload:=>
-      PIXI.loader.add([fdata, BgImage, Bgcamino, Bglava, dagaImage,picosImage]).load(@build)
+      PIXI.loader.add([fdata, BgImage, Bgcamino, Bglava, dagaImage,picosImage,lanzaImage]).load(@build)
 
     
   build:()=>
@@ -94,6 +101,13 @@ class App extends PIXI.Application
     @daga = new stage (dagaImage)
     @stage.addChild Bg
     @stage.addChild @daga
+
+    @daga.width = 50
+    @daga.height = 70
+    @daga.x = 0
+    @daga.y = 80
+    @daga.alpha = 0
+    @pared.push @daga
 
     @picos = new stage (picosImage)
     @stage.addChild @picos
@@ -105,27 +119,49 @@ class App extends PIXI.Application
     @picos.alpha = 0
     @pared.push @picos
 
+    @lanza = new stage(lanzaImage)
+    @stage.addChild @lanza
+
+
+    @lanza.width = 10
+    @lanza.height = 80
+    @lanza.x = 340
+    @lanza.y = 390
+    @lanza.alpha = 0
+    @addAnimationNodes @lanza
+    @pared.push @lanza
+
     for p in DataParedes
       pared = new Pared(p, @)
       @stage.addChild(pared)
       @pared.push(pared)
     for inv in DataInvisibles
-      invisible = new Invisible(inv, @)
-      @stage.addChild(invisible)
-      @obstaculo.push(invisible)
-
+      if inv.evt is "daga"
+        invisible = new Invisible(inv, @)
+        @stage.addChild(invisible)
+        @obstaculo.push(invisible)
+    for inv in DataInvisibles
+      if inv.evt is "bala"
+        invisible = new Invisible(inv, @)
+        @stage.addChild(invisible)
+        @obstaculo3.push(invisible)
     for inv2 in DataInvisibles
-      invisible2 = new Invisible2(inv2, @)
-      @stage.addChild(invisible2)
-      @obstaculo2.push(invisible2) 
+      if inv2.evt is "picos"
+        invisible2 = new Invisible2(inv2, @)
+        @stage.addChild(invisible2)
+        @obstaculo2.push(invisible2)
+    for inv3 in DataInvisibles
+      if inv3.evt is "lanza"
+        invisible3 = new Invisible3(inv3, @)
+        @stage.addChild(invisible3)
+        @obstaculo4.push(invisible3)  
+    for inv4 in DataInvisibles
+      if inv4.evt is "bala2"
+        invisible4 = new Invisible4(inv4, @)
+        @stage.addChild(invisible4)
+        @obstaculo5.push(invisible4)
 
 
-    @daga.width = 50
-    @daga.height = 70
-    @daga.x = 0
-    @daga.y = 80
-    @pared.push @daga
-    
     @frame = []
     for i in [1...15] by 1
       node = PIXI.Texture.fromFrame("#{i}.png")
@@ -148,6 +184,14 @@ class App extends PIXI.Application
     @stage.addChild @bala
     @addAnimationNodes @bala
     @pared.push @bala
+
+    @bala2 = new Rectangle(0x000000, 0, 0, 5, 5,100)
+    @bala2.x = 515
+    @bala2.y = 425
+    @bala2.alpha = 1
+    @stage.addChild @bala2
+    @addAnimationNodes @bala2
+    @pared.push @bala2
     
 
     @animate()
@@ -158,7 +202,6 @@ class App extends PIXI.Application
           return true
     return false
 
-
   addAnimationNodes: (child)=>
     @animationNodes.push child
 
@@ -168,15 +211,24 @@ class App extends PIXI.Application
 
         @anim.alpha = 0
         @daga.x = 0
-      if @collision(@anim, @obstaculo)
-        @daga.x += 55
-
+      if @collision(@anim, @obstaculo3) 
+         @bala.velocidad = -35
       if @collision(@anim, @obstaculo) 
-        @bala.velocidad = -20
+        @daga.x += 55
+        @daga.alpha = 1
 
       if @collision(@anim, @obstaculo2) 
-        @picos.alpha =+ 1
-        @pause = true
+        @picos.alpha = 1
+        @anim.alpha = 0
+
+      if @collision(@anim, @obstaculo4) 
+        @lanza.alpha = 1
+        @anim.alpha = 0
+        @lanza.velocidad = 20
+
+      if @collision(@anim, @obstaculo5) 
+        @bala2.velocidad = -15
+  
 
 
         
